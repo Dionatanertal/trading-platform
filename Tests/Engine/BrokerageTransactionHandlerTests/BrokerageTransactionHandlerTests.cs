@@ -2044,6 +2044,195 @@ namespace QuantConnect.Tests.Engine.BrokerageTransactionHandlerTests
             Assert.AreEqual(_algorithm.OrderEvents.Count(orderEvent => orderEvent.Status == OrderStatus.Invalid), 1);
         }
 
+        [TestCase(false, 7, OptionRight.Put, 450, 460, 7, 100, Description = "Long Put -> OTM, backtest mode leaves it to the delisting")]
+        [TestCase(true, 7, OptionRight.Put, 450, 460, 0, 100, Description = "Long Put -> OTM, expired worthless")]
+        [TestCase(true, -1, OptionRight.Call, 450, 455, 0, 0, Description = "Short Call -> ITM, assigned, gives the shares")]
+        [TestCase(true, -1, OptionRight.Put, 455, 450, 0, 200, Description = "Short Put -> ITM, assigned, gets the shares")]
+        [TestCase(true, 1, OptionRight.Call, 450, 455, 0, 200, Description = "Long Call -> ITM, exercised, gets the shares")]
+        [TestCase(true, 1, OptionRight.Put, 455, 450, 0, 0, Description = "Long Put -> ITM, exercised, gives the shares")]
+        public void ProcessSynchronousEventsClearsExpiredOptionHoldingsOnlyInLiveMode(
+            bool liveMode,
+            int optionPosition,
+            OptionRight optionRight,
+            decimal strikePrice,
+            decimal underlyingPrice,
+            int expectedOptionPosition,
+            int expectedUnderlyingPosition
+            )
+        {
+            // Arrange: a SPY option held past its expiry, with 100 shares of the underlying
+            var algorithm = new TestAlgorithm();
+            var equity = algorithm.AddEquity("SPY");
+            var optionSymbol = Symbol.CreateOption(equity.Symbol, equity.Symbol.ID.Market, OptionStyle.American, optionRight, strikePrice, new DateTime(2021, 9, 8));
+            var option = algorithm.AddOptionContract(optionSymbol);
+            algorithm.Portfolio[equity.Symbol].SetHoldings(underlyingPrice, 100);
+            algorithm.Portfolio[option.Symbol].SetHoldings(0.01m, optionPosition);
+            equity.SetMarketPrice(new Tick { Value = underlyingPrice });
+            algorithm.SetLiveMode(liveMode);
+
+            using var brokerage = new NoSubmitTestBrokerage(algorithm);
+            _transactionHandler = new TestBrokerageTransactionHandler();
+            _transactionHandler.Initialize(algorithm, brokerage, new BacktestingResultHandler());
+            algorithm.Transactions.SetOrderProcessor(_transactionHandler);
+
+            // 8 AM ET the day after expiry, inside the daily cash sync window
+            _transactionHandler.TestCurrentTimeUtc = new DateTime(2021, 9, 9, 12, 0, 0);
+
+            // Act: two daily passes, the second must find nothing to book
+            _transactionHandler.ProcessSynchronousEvents();
+            _transactionHandler.TestCurrentTimeUtc = _transactionHandler.TestCurrentTimeUtc.AddDays(1);
+            _transactionHandler.ProcessSynchronousEvents();
+            _transactionHandler.Exit();
+
+            // Assert
+            Assert.That(algorithm.Transactions.GetOrderTickets().Count(), Is.EqualTo(liveMode ? 1 : 0));
+            Assert.That(algorithm.Portfolio[optionSymbol].Quantity, Is.EqualTo(expectedOptionPosition));
+            Assert.That(algorithm.Portfolio[equity.Symbol].Quantity, Is.EqualTo(expectedUnderlyingPosition));
+        }
+
+        [TestCase(-7, 0, 0, -600, Description = "Short Call -> ITM, assigned early in full, not listed at the brokerage, gives the shares")]
+        [TestCase(-7, -3, -3, -300, Description = "Short Call -> ITM, assigned early in part, gives the shares")]
+        [TestCase(-7, -7, -7, 100, Description = "Short Call -> ITM, same position at the brokerage, nothing booked")]
+        public void ProcessSynchronousEventsBooksEarlyAssignmentFromBrokerageHoldings(
+            int optionPosition,
+            int brokeragePosition,
+            int expectedOptionPosition,
+            int expectedUnderlyingPosition
+            )
+        {
+            // Arrange: a short SPY call, ITM before its expiry, with 100 shares of the underlying, in live mode
+            var algorithm = new TestAlgorithm();
+            var equity = algorithm.AddEquity("SPY");
+            var optionSymbol = Symbol.CreateOption(equity.Symbol, equity.Symbol.ID.Market, OptionStyle.American, OptionRight.Call, 450m, new DateTime(2021, 9, 10));
+            var option = algorithm.AddOptionContract(optionSymbol);
+            algorithm.Portfolio[equity.Symbol].SetHoldings(455m, 100);
+            algorithm.Portfolio[option.Symbol].SetHoldings(0.01m, optionPosition);
+            equity.SetMarketPrice(new Tick { Value = 455m });
+            algorithm.SetLiveMode(true);
+
+            using var brokerage = new NoSubmitTestBrokerage(algorithm);
+            // a brokerage does not list a position it no longer holds, so 0 means the contract is missing
+            brokerage.AccountHoldings = new List<Holding> { new Holding { Symbol = equity.Symbol, Quantity = 100 } };
+            if (brokeragePosition != 0)
+            {
+                brokerage.AccountHoldings.Add(new Holding { Symbol = optionSymbol, Quantity = brokeragePosition });
+            }
+            _transactionHandler = new TestBrokerageTransactionHandler();
+            _transactionHandler.Initialize(algorithm, brokerage, new BacktestingResultHandler());
+            algorithm.Transactions.SetOrderProcessor(_transactionHandler);
+
+            // 8 AM ET the day before expiry, inside the daily cash sync window
+            _transactionHandler.TestCurrentTimeUtc = new DateTime(2021, 9, 9, 12, 0, 0);
+
+            // Act: two daily passes, the second must find nothing to book
+            _transactionHandler.ProcessSynchronousEvents();
+            _transactionHandler.TestCurrentTimeUtc = _transactionHandler.TestCurrentTimeUtc.AddDays(1);
+            _transactionHandler.ProcessSynchronousEvents();
+            _transactionHandler.Exit();
+
+            // Assert
+            Assert.That(algorithm.Transactions.GetOrderTickets().Count(), Is.EqualTo(brokeragePosition == optionPosition ? 0 : 1));
+            Assert.That(algorithm.Portfolio[optionSymbol].Quantity, Is.EqualTo(expectedOptionPosition));
+            Assert.That(algorithm.Portfolio[equity.Symbol].Quantity, Is.EqualTo(expectedUnderlyingPosition));
+        }
+
+        [TestCase(true, -7, false, 1, 0, -600, Description = "Short Call -> ITM, no underlying price after a restart, seeded from history, assigned in full")]
+        [TestCase(false, -7, false, 0, -7, 100, Description = "Short Call -> ITM, no underlying price and no history, not synced")]
+        [TestCase(true, 1, true, 1, 0, 200, Description = "Long Call -> ITM, expired, no underlying price after a restart, seeded from history, exercised, gets the shares")]
+        public void ProcessSynchronousEventsSeedsUnderlyingPriceFromHistoryWhenMissing(
+            bool historyHasPrice,
+            int optionPosition,
+            bool expired,
+            int expectedTickets,
+            int expectedOptionPosition,
+            int expectedUnderlyingPosition
+            )
+        {
+            // Arrange: a SPY call loaded after a night restart, the underlying has no price yet
+            var algorithm = new TestAlgorithm
+            {
+                HistoryProvider = historyHasPrice ? new LastPriceHistoryProvider(455m) : new EmptyHistoryProvider()
+            };
+            var equity = algorithm.AddEquity("SPY");
+            // the contract expired the day before the pass, or expires the day after
+            var expiry = expired ? new DateTime(2021, 9, 8) : new DateTime(2021, 9, 10);
+            var optionSymbol = Symbol.CreateOption(equity.Symbol, equity.Symbol.ID.Market, OptionStyle.American, OptionRight.Call, 450m, expiry);
+            var option = algorithm.AddOptionContract(optionSymbol);
+            algorithm.Portfolio[equity.Symbol].SetHoldings(455m, 100);
+            algorithm.Portfolio[option.Symbol].SetHoldings(0.01m, optionPosition);
+            algorithm.SetLiveMode(true);
+
+            using var brokerage = new NoSubmitTestBrokerage(algorithm);
+            // the brokerage no longer lists the contract
+            brokerage.AccountHoldings = new List<Holding> { new Holding { Symbol = equity.Symbol, Quantity = 100 } };
+            _transactionHandler = new TestBrokerageTransactionHandler();
+            _transactionHandler.Initialize(algorithm, brokerage, new BacktestingResultHandler());
+            algorithm.Transactions.SetOrderProcessor(_transactionHandler);
+
+            // 8 AM ET on 2021-09-09, inside the daily cash sync window
+            _transactionHandler.TestCurrentTimeUtc = new DateTime(2021, 9, 9, 12, 0, 0);
+
+            // Act
+            _transactionHandler.ProcessSynchronousEvents();
+            _transactionHandler.Exit();
+
+            // Assert
+            Assert.That(algorithm.Transactions.GetOrderTickets().Count(), Is.EqualTo(expectedTickets));
+            Assert.That(algorithm.Portfolio[optionSymbol].Quantity, Is.EqualTo(expectedOptionPosition));
+            Assert.That(algorithm.Portfolio[equity.Symbol].Quantity, Is.EqualTo(expectedUnderlyingPosition));
+        }
+
+        [TestCase(1, 1, 0, 200, "", Description = "Long Call -> ITM, expired, the first holdings read fails, booked on the next pass")]
+        [TestCase(4, 1, 0, 200, "", Description = "Long Call -> ITM, expired, four holdings reads fail, booked on the fifth pass")]
+        [TestCase(5, 0, 1, 100, "The maximum number of attempts for brokerage option holdings sync has been reached.", Description = "Long Call -> ITM, expired, five holdings reads fail, the fifth pass throws")]
+        public void ProcessSynchronousEventsRetriesTheOptionHoldingsSyncWhenTheBrokerageReadFails(
+            int failedReads,
+            int expectedTickets,
+            int expectedOptionPosition,
+            int expectedUnderlyingPosition,
+            string expectedError
+            )
+        {
+            // Arrange: an expired long SPY call, ITM, with 100 shares of the underlying, in live mode
+            var algorithm = new TestAlgorithm();
+            var equity = algorithm.AddEquity("SPY");
+            var optionSymbol = Symbol.CreateOption(equity.Symbol, equity.Symbol.ID.Market, OptionStyle.American, OptionRight.Call, 450m, new DateTime(2021, 9, 8));
+            var option = algorithm.AddOptionContract(optionSymbol);
+            algorithm.Portfolio[equity.Symbol].SetHoldings(455m, 100);
+            algorithm.Portfolio[option.Symbol].SetHoldings(0.01m, 1);
+            equity.SetMarketPrice(new Tick { Value = 455m });
+            algorithm.SetLiveMode(true);
+
+            using var brokerage = new NoSubmitTestBrokerage(algorithm) { AccountHoldingsFailures = failedReads };
+            _transactionHandler = new TestBrokerageTransactionHandler();
+            _transactionHandler.Initialize(algorithm, brokerage, new BacktestingResultHandler());
+            algorithm.Transactions.SetOrderProcessor(_transactionHandler);
+
+            // 8 AM ET the day after expiry, inside the daily cash sync window
+            _transactionHandler.TestCurrentTimeUtc = new DateTime(2021, 9, 9, 12, 0, 0);
+
+            // Act: one pass per failed read at the same time, so the window stays open, then the pass that reads the holdings
+            var error = string.Empty;
+            try
+            {
+                for (var i = 0; i <= failedReads; i++)
+                {
+                    _transactionHandler.ProcessSynchronousEvents();
+                }
+            }
+            catch (Exception exception)
+            {
+                error = exception.Message;
+            }
+            _transactionHandler.Exit();
+
+            // Assert
+            Assert.That(error, Is.EqualTo(expectedError));
+            Assert.That(algorithm.Transactions.GetOrderTickets().Count(), Is.EqualTo(expectedTickets));
+            Assert.That(algorithm.Portfolio[optionSymbol].Quantity, Is.EqualTo(expectedOptionPosition));
+            Assert.That(algorithm.Portfolio[equity.Symbol].Quantity, Is.EqualTo(expectedUnderlyingPosition));
+        }
+
         // Short Call --> OTM (expired worthless)
         [TestCase(-1, OptionRight.Call, 455, 100, 450, 1, 0, 100, "OTM")]
         // Short Put --> OTM (expired worthless)
@@ -3143,6 +3332,33 @@ namespace QuantConnect.Tests.Engine.BrokerageTransactionHandlerTests
             }
         }
 
+        internal class LastPriceHistoryProvider : HistoryProviderBase
+        {
+            private readonly decimal _price;
+
+            public override int DataPointCount => 1;
+
+            public LastPriceHistoryProvider(decimal price)
+            {
+                _price = price;
+            }
+
+            public override void Initialize(HistoryProviderInitializeParameters parameters)
+            {
+            }
+
+            public override IEnumerable<Slice> GetHistory(IEnumerable<HistoryRequest> requests, DateTimeZone sliceTimeZone)
+            {
+                var time = new DateTime(2021, 9, 8, 16, 0, 0);
+                var bars = new List<BaseData>();
+                foreach (var symbol in requests.Select(x => x.Symbol).Distinct())
+                {
+                    bars.Add(new TradeBar(time, symbol, _price, _price, _price, _price, 0));
+                }
+                return new[] { new Slice(time, bars, time) };
+            }
+        }
+
         internal class TestBrokerageModel : DefaultBrokerageModel
         {
             public override bool CanUpdateOrder(Security security, Order order, UpdateOrderRequest request, out BrokerageMessageEvent message)
@@ -3171,6 +3387,11 @@ namespace QuantConnect.Tests.Engine.BrokerageTransactionHandlerTests
         internal class NoSubmitTestBrokerage : Brokerage
         {
             private BacktestingBrokerage _underlyingBrokerage;
+
+            public List<Holding> AccountHoldings { get; set; }
+
+            // the number of GetAccountHoldings calls that throw before one succeeds
+            public int AccountHoldingsFailures { get; set; }
 
             public override bool IsConnected => _underlyingBrokerage.IsConnected;
 
@@ -3213,7 +3434,12 @@ namespace QuantConnect.Tests.Engine.BrokerageTransactionHandlerTests
 
             public override List<Holding> GetAccountHoldings()
             {
-                return _underlyingBrokerage.GetAccountHoldings();
+                if (AccountHoldingsFailures-- > 0)
+                {
+                    throw new Exception("Connection error in GetAccountHoldings");
+                }
+
+                return AccountHoldings ?? _underlyingBrokerage.GetAccountHoldings();
             }
 
             public override List<CashAmount> GetCashBalance()
