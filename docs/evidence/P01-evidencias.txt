@@ -1,0 +1,56 @@
+PACOTE: P01 — ARQUITETURA CANÔNICA
+DATA: 2026-10-29
+REPOSITÓRIO: Dionatanertal/trading-platform
+
+BASELINE
+Branch base: master
+Branch remota observada: origin/master
+HEAD/base: 6bdc2932fa0adda8255b4e4ed35184bae678dee3
+Estado inicial: worktree limpo; master sincronizada com origin/master.
+Branch de trabalho: feature/p01-arquitetura-contratos (criada a partir do master acima).
+Commit-base identificado como merge da inicialização de governança P00; não foi encontrado relatório P00 versionado. Não atribuir descobertas adicionais ao P00.
+
+ARQUIVOS INCLUÍDOS NESTE MICROPACOTE
+docs/architecture/MAPA-CANONICO.md
+docs/architecture/CONTRATO-P01.md
+docs/architecture/ADR-0001.md
+docs/architecture/ROADMAP.md
+docs/evidence/P01-evidencias.txt
+
+RESUMO DO DIFF
+Adiciona quatro documentos de arquitetura e este único TXT consolidado de evidências. Nenhum arquivo de código LEAN, algoritmo, launcher, workflow, configuração de execução, banco, RLS, integração ou infraestrutura deve ser alterado.
+
+ESCOPO POSITIVO E ACEITE DO PACOTE
+Documentar arquitetura observada, responsabilidades existentes/propostas/pendentes, fontes de verdade, fluxos, contrato de domínio/execução, ADRs, roadmap e riscos. Aceite documental exige coerência interna, referências ao baseline identificáveis, ausência de capacidades futuras descritas como existentes e proibição explícita de execução real até homologação.
+Banco/migrations/RLS: N/A neste pacote documental.
+UX/UI: N/A para implementação; fronteira e princípios de segurança estão documentados como proposta.
+
+ESCOPO NEGATIVO
+Não alterados: C#, Python, Launcher, Engine, workflows, banco de dados, RLS, configurações, integrações, infraestrutura e licença/atribuições upstream.
+Não executados: código, testes funcionais, migrations/SQL, deploy, ordens, conexões a corretora ou integração externa.
+Nenhuma afirmação de teste funcional aprovado.
+Execução real continua desabilitada/bloqueada; nenhum suporte B3/Genial é declarado.
+Supabase é apenas proposta para projeto novo e independente, condicionada a contrato e autorização próprios.
+
+VERIFICAÇÕES DOCUMENTAIS E EVIDÊNCIAS
+Lidos .github/copilot-instructions.md e docs/governance/REGRAS-PUBLICAS.md. A documentação reconhece que os textos privados integrais PES 1.0 e SAMACON não foram lidos e precisam validação separada do proprietário.
+Verificados: readme.md; QuantConnect.Lean.sln; Launcher/Program.cs; Launcher/QuantConnect.Lean.Launcher.csproj; Engine/Engine.cs; Engine/QuantConnect.Lean.Engine.csproj; Engine/TransactionHandlers/ITransactionHandler.cs; Engine/DataFeeds/IDataFeed.cs; Api/QuantConnect.Api.csproj; Common/Interfaces/IBrokerage.cs; Brokerages/Backtesting/BacktestingBrokerage.cs; Brokerages/Paper/PaperBrokerage.cs; Launcher/config.json.
+O projeto Api descreve-se como SDK C# para QuantConnect.com. Engine/Launcher são projetos LEAN. Foram encontradas implementações BacktestingBrokerage e PaperBrokerage. A busca textual nos arquivos consultados não encontrou integração própria Supabase, frontend, B3 ou Genial.
+Documentação distingue fatos do baseline de proposta e de itens dependentes de validação; nenhum elemento futuro é descrito como implementação existente.
+
+VALIDAÇÃO
+Verificação funcional/testes: NÃO EXECUTADOS (escopo exclusivamente documental; nenhum código alterado).
+`git diff --cached --check`: aprovado.
+Busca por whitespace final nos cinco arquivos: sem ocorrências.
+Diff limitado aos cinco documentos listados; merge-base da branch com master confirma 6bdc2932fa0adda8255b4e4ed35184bae678dee3.
+Revisão documental manual: responsabilidades existentes/propostas/pendentes, contrato, estados, fluxos, segurança financeira, riscos e roadmap comparados às fontes do baseline listadas acima.
+Links Markdown internos: não aplicável; os documentos usam caminhos do repositório como evidência, sem links relativos Markdown.
+
+ROLLBACK
+Não há efeito de runtime, dados ou infraestrutura para reverter. Se a proposta for rejeitada, retirar/reverter somente o commit documental P01 na branch isolada, sem alterar master ou commits preexistentes; registrar a decisão no PR.
+
+NOTA DE VERSÃO — P01
+Adiciona proposta versionada de arquitetura, contrato do domínio de execução, ADR e roadmap progressivo. Define LEAN como motor preservado, separa frontend/API futuros, mantém Supabase independente e bloqueia operação real até homologação explícita. Esta nota registra documentação proposta, não aprovação operacional nem mudança funcional.
+
+STATUS DO PACOTE
+Preflight documental concluído; diff e escopo aprovados. Nenhum teste funcional foi executado. PR depende de issue aberta conforme template do repositório; nenhuma issue aberta foi encontrada. Nenhuma promoção ou validação real autorizada.
