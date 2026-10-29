@@ -37,6 +37,14 @@
 }
 
 * { box-sizing: border-box; }
+.backtest { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; min-width: 0; }
+.backtest .page-heading { padding-bottom: 0; }
+.backtest-provenance, .backtest-note { padding: 18px; line-height: 1.8; }
+.backtest-provenance p, .backtest-note { color: var(--muted); font-size: 12px; }
+.backtest .section-title { flex-wrap: wrap; }
+.backtest code, .backtest-hashes dd { overflow-wrap: anywhere; }
+.backtest-hashes dd { margin: 4px 0 16px; }
+.backtest .metric-card strong { overflow-wrap: anywhere; }
 body { margin: 0; min-width: 360px; background: var(--bg); color: var(--text); font-size: 13px; }
 button, input { font: inherit; }
 button { cursor: pointer; color: inherit; border: 0; background: none; }

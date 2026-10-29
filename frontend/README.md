@@ -2,6 +2,13 @@
 
 Interface funcional independente do QuantConnect LEAN. **SIMULAÇÃO**: todos os preços, volumes, unidades, multiplicadores e resultados são fictícios. Não usa feed B3, corretora, conta, API, Supabase ou LEAN. Não é backtest nem paper trading homologado.
 
+**Adição P03:** essas regras continuam válidas para Terminal e Dashboard P02.
+A nova navegação **Backtest LEAN** mostra, separadamente, resultados históricos
+de uma execução local comprovada do motor, em USD. É somente leitura e não
+executa estratégias pelo navegador. Proveniência, contrato JSON, reexecução
+nativa e limites em [`../p03/README.md`](../p03/README.md). Nenhum deploy P03
+foi executado; a publicação P02 existente não foi alterada por esta entrega.
+
 ## Abrir sem instalar no seu computador
 
 A versão pública poderá ser aberta no navegador pelo GitHub Pages **somente depois da aprovação e publicação manual** descritas abaixo. Este pacote não executa deploy nem fornece uma publicação antecipada.
