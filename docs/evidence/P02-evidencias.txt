@@ -1,0 +1,139 @@
+PACOTE: P02 — PRIMEIRO TERMINAL VISUAL
+VERSAO: 0.2.0
+DATA: 2026-10-29
+REPOSITORIO: Dionatanertal/trading-platform
+RISCO: R2 — risco medio, classificacao e definicao fornecidas expressamente pelo proprietario nesta sessao.
+
+AUTORIZACAO E CONTRATO
+Proprietario informou P01 aprovado em master e solicitou frontend funcional, branch isolada, preparacao de Pages e criacao automatica de PR, sem merge ou deploy. Confirmou classificacao R2 e autorizou prosseguimento. Instalacao npm neste ambiente GitHub foi autorizada apos esclarecimento; nenhuma instalacao foi solicitada no computador do usuario.
+Contrato registrado antes dos fontes: docs/architecture/CONTRATO-P02.md.
+Consultados: .github/copilot-instructions.md, docs/governance/REGRAS-PUBLICAS.md, mapa/contrato/ADR/roadmap P01, evidencia P01, CONTRIBUTING.md e template de PR.
+Protocolos privados integrais nao foram consultados. Aplicado resumo publico e decisoes expressas do proprietario; nao inferida escala R0-R4 integral.
+
+BASELINE
+Branch padrao confirmada por gh repo view: master.
+git ls-remote --heads origin master: d940ba291dfee1b6129b13ff086e2e2a265e0fcc.
+HEAD inicial: d940ba291dfee1b6129b13ff086e2e2a265e0fcc (merge P01).
+Worktree inicialmente limpo. origin/HEAD simbolico local ausente; branch padrao verificada pela API e referencia remota direta, sem alterar master.
+Branch de trabalho criada: feature/p02-trading-terminal, derivada diretamente desse HEAD.
+git merge-base HEAD master confirmado igual ao baseline antes do commit.
+Ambiente: Linux GitHub, Node v26.12.1, npm 11.20.0. Workflow preparado para Node 24, ainda nao executado no GitHub.
+Nenhum Docker utilizado; LEAN nao compilado/executado.
+
+ESCOPO IMPLEMENTADO
+frontend/: React/TypeScript/Vite, Lightweight Charts, Lucide, lockfile, dominio e testes isolados.
+Terminal/dashboard, temas claro/escuro, lista pesquisavel WIN/WDO/PETR4/VALE3, candles, cursor OHLC, periodos 1m/5m/15m/1h/1d, zoom/arraste, ajuste, EMA 9/21, SMA 20 e volume.
+Cenario deterministico pausado inicialmente; passo manual de um minuto sintetico ou reproducao a cada tres segundos.
+Boleta a mercado ficticio, posicoes liquidas, preco medio ponderado, reducao/inversao/zeragem, ordens, historico de reducoes e metricas calculadas a partir do mesmo reducer.
+Capital demonstrativo R$ 100.000; limites didaticos de 100 unidades absolutas por ativo e 1.000 ordens por sessao. Sem taxas, slippage, margem ou parciais.
+Estado em memoria por aba; recarregar limpa operacoes. Reset confirmado limpa carteira, historico, resultados e relogio; pausa novamente.
+Erros de quantidade/exposicao/limite visiveis; fronteira de renderizacao com mensagem e recarga explicita.
+Proveniencia de SIMULACAO exposta; atribuicao TradingView mantida e aviso de copyright verificado contra NOTICE oficial v5.2.1.
+Documentacao de operacao/limites, contrato P02, mapa/roadmap atualizados preservando historico P01 e Nota de versao.
+
+ARQUIVOS DO PACOTE (24)
+.github/workflows/p02-pages.yml
+docs/architecture/CONTRATO-P02.md
+docs/architecture/MAPA-CANONICO.md
+docs/architecture/ROADMAP.md
+docs/evidence/P02-evidencias.txt
+docs/releases/P02.md
+frontend/.gitignore
+frontend/README.md
+frontend/index.html
+frontend/package-lock.json
+frontend/package.json
+frontend/playwright.config.ts
+frontend/src/App.tsx
+frontend/src/PriceChart.tsx
+frontend/src/main.tsx
+frontend/src/market.test.ts
+frontend/src/market.ts
+frontend/src/simulation.test.ts
+frontend/src/simulation.ts
+frontend/src/styles.css
+frontend/tests/terminal.spec.ts
+frontend/tsconfig.json
+frontend/vite.config.ts
+frontend/vitest.config.ts
+Nota: docs/releases/P02.md foi incluido explicitamente; regra upstream generica [Rr]eleases/ ignora diretorios com esse nome. .gitignore upstream nao foi alterado.
+
+ESCOPO NEGATIVO / REGRESSAO
+Comparacao de bytes contra baseline: nove workflows preexistentes, LICENSE, CONTRIBUTING.md, instrucoes Copilot e regras publicas inalterados.
+Diff limitado a frontend, um novo workflow manual e documentos listados. Nenhum arquivo C#/Python/LEAN, configuracao do Launcher, banco, schema, RLS, migration, Supabase ou integracao alterado.
+Sem API, runner, autenticacao, tenants ou persistencia de operacoes. Nao representa PAPER ou backtest LEAN.
+Nenhum feed externo/B3, conector, conta, credencial ou ordem financeira real. Fontes proprios sem fetch/XMLHttpRequest/WebSocket/sendBeacon/localStorage/sessionStorage.
+Varredura pontual de padroes de chaves privadas, tokens GitHub e AWS sem ocorrencias nos arquivos do pacote. Nao equivale a auditoria de seguranca completa.
+Testes LEAN nao executados: codigo intacto e nenhuma integracao com o frontend.
+
+VALIDACOES EFETIVAMENTE EXECUTADAS
+1. npm --prefix frontend ci --no-fund --no-audit
+   PASS: instalacao limpa/reprodutivel do lockfile, 52 pacotes.
+2. npm --prefix frontend test
+   PASS: 39 testes unitarios em dois arquivos.
+   Cobertura funcional: 4 ativos x 5 periodos, 240 candles por serie, OHLC/volume/timestamps validos, determinismo, preco canonico compartilhado e estabilidade de candles fechados; SMA e EMA com valores exatos e validacao de periodo; compra/venda, media ponderada, reducao, inversao, zeragem, multiplicadores, marcacao multiactivo, imutabilidade, metricas, reset, quantidades invalidas, exposicao 100 e limite de 1.000 ordens.
+3. npm --prefix frontend run build
+   PASS: tsc --noEmit e vite build, sem erros de tipos.
+   Build final: index.html 0,93 kB; CSS 27,01 kB; JS 429,69 kB (gzip 136,06 kB).
+4. cd frontend && npx playwright install chromium
+   PASS: navegador necessario instalado somente no ambiente GitHub.
+5. npm --prefix frontend run test:e2e
+   PASS final: 12 testes (6 fluxos x desktop/mobile), Chromium, 32,8 segundos.
+   Desktop 1440x1000 e mobile emulado iPhone 13; mobile Chromium, nao Safari nativo.
+   Verificados no build servido em http://127.0.0.1:4173/trading-platform/:
+   - candles renderizados em canvas, selecao WDO/PETR4, periodos e estado acessivel;
+   - cada indicador altera pixels renderizados individualmente, alem de atualizar checkbox;
+   - ajuste de enquadramento, scroll de zoom, alternancia de tema e busca vazia;
+   - compra 5 WIN, avanco, reducao 2, inversao por venda 5 e zeragem 2;
+   - patrimonio e resultado comparados com valores esperados calculados, 4 ordens, 3 reducoes, taxa de acerto 66,7%; dashboard e terminal consistentes;
+   - quantidade fracionaria e excesso de exposicao rejeitados sem criar efeitos;
+   - reproducao altera marcacao, pausa, cancelamento e confirmacao do reset, reload limpa e pausa;
+   - todos os periodos preservam fechamento canonico, trocar ativo preserva carteira;
+   - sem erros JS, erros de console, requests falhos, requisicoes externas ou metodos nao GET durante os fluxos observados;
+   - sem overflow de pagina ou toolbar em 360, 650, 768, 1024, 1280 e 1920 pixels.
+6. npm --prefix frontend audit
+   PASS: zero vulnerabilidades reportadas nas dependencias de producao e desenvolvimento no momento da verificacao. Nao prova ausencia de vulnerabilidades de aplicacao.
+7. git diff --check
+   PASS antes da evidencia e no preflight final do pacote.
+8. Preflight por leitura/Python da lista de diff, merge-base, comparacao binaria de arquivos preservados, links relativos e politica de workflow:
+   PASS de escopo e invariantes estaticas verificadas. Links internos resolvidos; nenhum fonte/artefato fora do escopo.
+   Confirmado on contendo somente workflow_dispatch, restricao master, confirmacao PUBLICAR_P02, deploy dependente de build, environment github-pages e permissoes de escrita apenas no deploy.
+9. Inspecao visual:
+   Preview respondeu HTTP 200 no subpath Pages; capturas de terminal escuro/claro, dashboard e mobile examinadas no ambiente da sessao, nao commitadas. Processo de preview encerrado. Testes finais posteriores incluem localizacao numerica do grafico e atribuicao.
+
+FALHAS INICIAIS E LIMITACOES (NAO OCULTADAS)
+- Primeira tentativa E2E: oito falhas por executavel Chromium ausente. Corrigido com instalacao do navegador, depois executado novamente.
+- Primeira execucao com navegador: cinco PASS e tres falhas de seletores (nome de ativo oculto em mobile e contagem global incluindo tabela interna do grafico). Adicionado nome acessivel estavel por ativo e restringido seletor de historico ao painel da carteira. Nova execucao: oito PASS; suite ampliada posteriormente para doze PASS.
+- actionlint nao estava instalado. Tentativa de execucao/instalacao via Go recusada pelo usuario; nao executado e nao substituido por instalacao alternativa. PyYAML tambem ausente; nao instalado.
+- Workflow revisado manualmente e por invariantes estaticas, mas SEM PASS de actionlint, runtime Actions, environment ou deploy Pages.
+- Nada validado em site publico, Safari nativo, corretora, B3, LEAN ou API. Nenhuma afirmacao de PASS nesses ambientes.
+
+IDENTIFICACAO DO BUILD FINAL LOCAL (SHA256)
+frontend/dist/index.html:
+80361fa41ba4dd886230c91f8a46949829336067edb2b75d26ff967ab97e7fa5
+frontend/dist/assets/index-Zv5vIUmR.css:
+6185a2f8a232b099e13f07d3b16336522bb7115e0bd7c021ef759fb6b1644fba
+frontend/dist/assets/index-DJdbVq9G.js:
+2780fa38da439a9e05561d9d668a3670bc545626c782a9dd03e503dfee9626cf
+dist/node_modules/test-results/capturas nao integram o commit. Estes hashes identificam o build validado localmente, nao uma publicacao remota.
+
+PREFLIGHT, COMMIT E PR
+Commit de entrega identificado pelo proprio commit que contem este TXT; consultar git log na feature/p02-trading-terminal e o HEAD registrado no PR. Nao inserir hash autorreferente ficticio.
+Push e PR solicitados explicitamente pelo proprietario; sem force push, alteracao da master, merge ou deploy.
+Template .github/pull_request_template.md lido e seguido. Nenhuma issue aberta encontrada por gh issue list; nao criada issue sem autorizacao. Excecao de requisito de issue e de convencao upstream de branch deve ficar explicita no PR, para revisao do proprietario.
+Promocao: somente revisao por PR. O commit enviado deve corresponder ao HEAD local; confirmar por referencia remota apos push.
+
+PUBLICACAO E SELAGEM
+Pages apenas preparado. Workflow exclusivamente manual e novo; nao disparado nesta entrega. Nao configurados Pages, environment, revisores, secrets ou qualquer infraestrutura remota.
+Depois de aprovacao/merge autorizados pelo proprietario: configurar Pages como GitHub Actions, revisar eventual site existente, restringir environment a master, adicionar revisao obrigatoria quando disponivel e executar manualmente com PUBLICAR_P02.
+URL esperada, nao publicada/validada: https://dionatanertal.github.io/trading-platform/
+Obrigatorio validar versao/commit realmente publicado e repetir fluxo funcional antes de selagem. Nao declarar PASS de producao.
+
+ROLLBACK
+Antes de merge: rejeitar o PR, sem efeito remoto de runtime. Depois de eventual publicacao: reverter somente P02 por PR e retirar/desabilitar Pages por acao explicita do proprietario. LEAN permanece intacto. Sem reset destrutivo ou force push.
+
+NOTA DE VERSAO
+docs/releases/P02.md: v0.2.0, primeiro terminal real navegavel com dados/ordens exclusivamente simulados, dominio isolado, controles funcionais e Pages manual preparado.
+
+ESTADO FINAL TECNICO
+Implementacao e validacao funcional local concluidas para revisao. Publicacao, promocao e selagem BLOQUEADAS ate aprovacao e validacao publica posteriores. Nenhuma ordem real, merge ou deploy realizado.

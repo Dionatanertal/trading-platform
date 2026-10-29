@@ -1,7 +1,15 @@
 # Roadmap arquitetural — micropacotes propostos
 
-**Estado:** sequência proposta após revisão do P01; não autoriza iniciar automaticamente um pacote.
+**Estado:** sequência original P01 preservada abaixo como histórico. O proprietário aprovou P01 e redefiniu explicitamente **P02 como primeiro terminal visual**, com classificação R2 e autorização de implementação/PR, sem merge/deploy. Essa autorização não aprova automaticamente serviços, persistência, runner ou execução financeira.
 **Princípio:** um micropacote coerente por vez; contrato técnico e autorização antes de qualquer código, SQL, integração, deploy ou envio de ordens.
+
+## Ajuste autorizado no P02
+
+O [contrato P02](CONTRATO-P02.md) e `frontend/README.md` especificam a antecipação da interface **somente demonstrativa**, sem dependência de API/identidade porque não há serviço, conta ou dados privados. Terminal/dashboard usam dados sintéticos e carteira em memória; não implementam os gates de serviços ou PAPER descritos no plano histórico. GitHub Pages somente preparado para deploy manual futuro após aprovação. Critérios/evidências em `docs/evidence/P02-evidencias.txt`; nota em `docs/releases/P02.md`.
+
+O antigo item P02 de fechamento de contratos permanece uma pendência antes dos serviços P03/P04/P06/P07; o item P05 passa a representar a futura evolução da demo para cliente autenticado. Não duplicar numeração para alegar que contratos financeiros ou integrações foram concluídos.
+
+## Sequência proposta originalmente no P01 (histórico)
 
 | Pacote | Objetivo e entregável | Dependências | Critérios de aceite propostos | Riscos/bloqueios |
 |---|---|---|---|---|

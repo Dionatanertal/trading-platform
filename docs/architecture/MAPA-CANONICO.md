@@ -1,9 +1,10 @@
 # Mapa canônico da arquitetura
 
-**Pacote:** P01 — Arquitetura canônica
-**Estado:** proposta para revisão; não é autorização de implementação nem de operação.
-**Baseline:** `master` em `6bdc2932fa0adda8255b4e4ed35184bae678dee3` (2026-10-29).
-**Branch de trabalho:** `feature/p01-arquitetura-contratos`.
+**Pacote atual:** P02 — Primeiro terminal visual (2026-10-29).
+**Estado:** proprietário informou aprovação do P01 e autorizou explicitamente o frontend demonstrativo P02; implementação para revisão, sem merge ou deploy. Demais serviços e operação continuam propostos/bloqueados.
+**Baseline P02:** `master` em `d940ba291dfee1b6129b13ff086e2e2a265e0fcc`.
+**Branch de trabalho:** `feature/p02-trading-terminal`.
+**Registro histórico P01:** desenho elaborado sobre `6bdc2932fa0adda8255b4e4ed35184bae678dee3`; contratos/ADR originais preservados. [Contrato específico P02](CONTRATO-P02.md) delimita a demonstração sem substituir os contratos futuros de serviços.
 
 ## 1. Objetivo e limites
 
@@ -13,7 +14,7 @@ Esta proposta não afirma que os documentos privados integrais PES 1.0 ou SAMACO
 
 ## 2. Componentes e responsabilidades
 
-| Componente | Estado em `master` | Responsabilidade ou limite |
+| Componente | Estado observado / alteração P02 em revisão | Responsabilidade ou limite |
 |---|---|---|
 | QuantConnect LEAN | **Existente** | Motor open source de algoritmos, dados, carteira, ordens, backtest e operação suportados pelos seus componentes. Deve permanecer o motor; preservar licença Apache-2.0 e atribuições. |
 | `Launcher` | **Existente** | Inicializa handlers, obtém um job, configura ambiente e inicia `Engine`. A configuração de exemplo usa `backtesting`; isso não é um controle de segurança para a futura plataforma. |
@@ -24,7 +25,7 @@ Esta proposta não afirma que os documentos privados integrais PES 1.0 ou SAMACO
 | `Api` | **Existente, não é a API do produto** | O projeto declara ser um SDK C# para interação com QuantConnect.com. Não é backend HTTP próprio nem contrato para o frontend desta plataforma. |
 | `Queues`, `Messaging`, `Report`, `Optimizer`, `Optimizer.Launcher`, `Research`, `ToolBox`, `DownloaderDataProvider` | **Existentes** | Projetos de suporte do LEAN. A presença de um projeto não implica que a plataforma própria já os integre ou ofereça suas funções a usuários. |
 | `Tests` | **Existente** | Suíte de testes do código LEAN; não comprova integração da futura plataforma. |
-| Frontend próprio | **Proposto** | Interface independente de implementação e ciclo de vida do LEAN; não encontrado no baseline. |
+| Frontend próprio | **Implementado no P02; publicação pendente** | `frontend/`: React/TypeScript/Vite, Lightweight Charts, domínio puro de simulação sintética, carteira em memória, terminal/dashboard. Não integra API, runner, LEAN ou dados externos; não é PAPER operacional. Não existia no baseline P01/P02. |
 | API/backend e coordenador de execução próprios | **Propostos** | Autenticação, autorização, validação, idempotência, controle de concorrência, despacho e reconciliação entre produto e runner LEAN; não encontrados no baseline. |
 | Adaptador/runner de plataforma | **Proposto; transporte pendente** | Isola o contrato do produto das interfaces de inicialização do LEAN. Processo, protocolo, hospedagem e isolamento precisam de decisão e validação antes de implementar. |
 | Supabase independente | **Planejado, não integrado** | Projeto novo de persistência e controle, apenas por contrato futuro. Nenhuma referência ou integração Supabase foi encontrada. Projeto, esquema, políticas, RLS e credenciais não são definidos nem alterados pelo P01. |
@@ -40,7 +41,7 @@ O `Launcher` referencia `Engine` e diversos projetos LEAN, incluindo `Api`, `Bro
 Pessoa usuária
       |
       v
-Frontend próprio (proposto; sem privilégios de execução)
+Frontend próprio (P02 demonstrativo; sem privilégios de execução)
       | HTTPS / contrato versionado
       v
 API + autorização + coordenador (propostos)
@@ -57,6 +58,8 @@ LEAN Launcher -> LEAN Engine -> handlers de dados, algoritmo,
 ```
 
 O diagrama representa uma fronteira proposta, não uma topologia instalada. O frontend não deve acessar o runner nem credenciais privilegiadas do Supabase diretamente. O backend é o único componente proposto para autorizar comandos e coordenar estado persistido com estado observado do engine. O transporte até o LEAN e o mecanismo de fila permanecem decisões em aberto.
+
+No P02 somente o frontend acima existe: `UI → domínio local de simulação → estado em memória por aba`, com candles/indicadores determinísticos locais. Nenhuma seta HTTPS/runner/persistência do diagrama está conectada. Operações e resultados da demo não são eventos LEAN. O novo workflow Pages tem disparo exclusivamente manual, confirmação explícita e restrição a `master`; nenhum deploy foi realizado.
 
 ## 4. Domínio, fontes de verdade e fluxos
 
@@ -90,7 +93,7 @@ Não há ainda uma fonte de verdade de plataforma implementada. No desenho futur
 
 | Risco/lacuna | Evidência e impacto | Tratamento obrigatório antes da implementação pertinente |
 |---|---|---|
-| Rótulo de risco PES | O resumo público pede classificação R0–R4, mas não define a escala e o original privado não foi lido. Não atribuir um nível por suposição. | Proprietário valida a classificação e o contrato PES canônico antes da implementação. |
+| Rótulo de risco PES | O original privado não foi lido. Para P02, o proprietário forneceu explicitamente **R2 — risco médio**, por estados interativos, gráficos, indicadores e operações exclusivamente simuladas. | Classificação válida para este pacote; não inferir a escala integral nem classificação de futuros serviços financeiros. |
 | Estado dividido API/runner/persistência | Os componentes próprios ainda não existem; uma desconexão pode deixar o resultado de uma execução ambíguo. | Identidade de comando, eventos duráveis, lease/concorrência e reconciliação especificados e testados. |
 | Execução financeira real | LEAN inclui abstrações de execução, mas o baseline verificado não comprova conector B3/Genial, dados ou homologação. | Execução real desabilitada; aprovação específica, ambiente homologado e controles financeiros completos antes de qualquer proposta que possa enviar ordens reais. |
 | Semântica de `PaperBrokerage` | Há uma implementação LEAN com esse nome, que deriva de `BacktestingBrokerage`; sua presença não comprova um serviço isolado da plataforma nem dados adequados. | Validar significado, dados, ambiente e critérios de aceitação de paper trading em pacote próprio. |
