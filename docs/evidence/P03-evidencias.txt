@@ -1,0 +1,191 @@
+P03 - PRIMEIRO BACKTEST LEAN NATIVO - EVIDENCIA CONSOLIDADA
+Data: 2026-10-29 UTC
+Estado: EXECUCAO LOCAL COMPROVADA; pacote para revisao.
+Promocao/deploy/selagem de producao: NAO REALIZADOS.
+
+1. AUTORIZACAO E BASELINE
+Solicitacao P03 autoriza execucao .NET, branch isolada, resultados reais,
+testes, evidencias, Nota de versao e PR. Execucao local reafirmada pelo
+proprietario apos a primeira chamada ter sido negada na ferramenta.
+Aplicado apenas o resumo publico PES/SAMACON; originais nao consultados.
+Classificacao numerica de risco P03: pendente do proprietario, nao inferida.
+Contrato registrado antes do codigo: docs/architecture/CONTRATO-P03.md.
+Repo: Dionatanertal/trading-platform
+Default/master/HEAD inicial:
+6f9f26dded73e6ff0c1a0879b0125331c85bc4aa
+Worktree inicialmente limpo. Branch: feature/p03-lean-backtest.
+git symbolic-ref refs/remotes/origin/HEAD falhou: ref local nao configurada;
+gh repo view confirmou defaultBranchRef=master. Nao tratado como divergencia.
+git ls-remote origin refs/heads/master confirmou a mesma base no preflight.
+P02 publicado conforme informado pelo proprietario; nenhuma acao no site.
+
+2. AMBIENTE E RECURSOS
+Linux x64 / Ubuntu 24.04; SDK .NET 10.0.403; runtime 10.0.14.
+Node v26.12.1; npm 11.20.0; Python 3 (stdlib somente).
+Dotnet ja instalado; nenhum Docker utilizado/iniciado/instalado.
+Frontend inicialmente sem dependencias instaladas: npm test falhou
+com vitest not found. npm ci --no-audit --no-fund restaurou 52 pacotes.
+Chromium ausente: primeiro E2E falhou por Executable doesn't exist.
+npx playwright install chromium instalou navegador necessario.
+Nenhum manifesto/lockfile de dependencias foi alterado.
+Nenhum recurso de mercado externo faltante: dados SPY ja estavam no repo.
+
+3. BUILD NATIVO
+Comando:
+dotnet build Launcher/QuantConnect.Lean.Launcher.csproj --configuration Release --verbosity quiet
+Resultado inicial: exit 0; 4452 warnings; 0 erros; 00:01:35.77.
+Build completo preservado na sessao em files/p03-build.log.
+Warnings upstream incluem:
+- NU1903: DotNetZip 1.16.0, vulnerabilidade conhecida de severidade alta.
+- NU1904: System.Drawing.Common 4.7.0, severidade critica.
+- Analisadores C# e NETSDK1206 (RID win7).
+Nao ocultados nem corrigidos fora do escopo. Build verde nao foi usado
+como prova funcional ou homologacao de seguranca/producao.
+Nao foram oferecidos uploads ou um servico de execucao publico.
+
+4. EXECUCAO REAL
+Motor: QuantConnect LEAN v2.5.0.0, Release, processo nativo .NET.
+Algoritmo: QuantConnect.Algorithm.CSharp.BasicTemplateAlgorithm upstream,
+arquivo preservado sem alteracoes. Python somente orquestra/valida JSON.
+Config independente: p03/config.json; live-mode=false, handlers de
+backtest, FileSystemDataFeed, DefaultDataProvider, mapas/fatores locais,
+BacktestingTransactionHandler e BacktestingBrokerage observado no log.
+Sem conta, token, brokerage live, B3, Genial, Supabase ou dados de rede.
+NuGet pode acessar rede apenas para restauracao/build.
+
+Comandos executados (diretorio de sessao):
+/root/.copilot/session-state/ebeb9a96b1b149499bbc6f0993c2c936/files/
+python3 p03/run.py /root/.copilot/session-state/ebeb9a96b1b149499bbc6f0993c2c936/files/p03-run-1
+Resultado: exit 0, primeiro backtest real; formato nativo inspecionado.
+python3 p03/run.py /root/.copilot/session-state/ebeb9a96b1b149499bbc6f0993c2c936/files/p03-run-2
+Resultado: exit 0, validacao e exportacao completas.
+python3 p03/run.py /root/.copilot/session-state/ebeb9a96b1b149499bbc6f0993c2c936/files/p03-run-3
+Resultado: exit 0, repeticao isolada validada.
+
+Chamada interna do motor:
+dotnet <raiz>/Launcher/bin/Release/QuantConnect.Lean.Launcher.dll --config <saida>/effective-config.json
+Cwd: Launcher/bin/Release. Nao usa o config live de exemplo do launcher.
+Timeouts: build 600s, processo 180s. Diretorio existente recusado.
+
+Execucao preservada em p03/artifacts/first-run/ corresponde ao run-2,
+primeira execucao com manifesto completo e exportacao validada:
+inicio 2026-10-29T21:33:43.294828+00:00
+fim    2026-10-29T21:33:48.121706+00:00
+State.Status=Completed; RuntimeError e StackTrace vazios; exitCode=0.
+Log comprova Loaded BasicTemplateAlgorithm, Engine.Run,
+BacktestingBrokerage e Analysis Completed and Results Posted.
+Pontos processados: 3943.
+Data monitor: 11 succeeded, 0 failed.
+Ordens nativas: 1. Evento filled:
+SPY, compra 688, 2013-10-07T13:31:00Z, preco USD 144.78172417,
+taxa USD 3.44. Confirmado contra orders do resultado nativo.
+Curva: 396 candles nativos [time,open,high,low,close].
+Inicio USD 100000; ultimo fechamento USD 101691.9198.
+Estatisticas emitidas: Start Equity=100000; End Equity=101691.92;
+Net Profit=1.692%; Drawdown=2.200%; Total Fees=$3.44.
+Nao foram lidos ExpectedStatistics como substituto de execucao.
+Posicao permanece aberta; resultado inclui marcacao a mercado.
+Nao demonstra desempenho futuro, recomendacao ou trading real.
+
+5. DADOS E PROVENIENCIA
+SPY, USA, Minute, 07-11/10/2013; trade e quote locais (10 ZIPs).
+Benchmark interno usa tambem Data/equity/usa/hour/spy.zip.
+Map/factor files, calendario, propriedades e juros locais identificados
+por caminho/SHA-256 em manifest.json e dashboard.json.
+Fonte e direitos: Data/equity/usa/readme.md:
+DATA PROVIDED BY ALGOSEEK / ALL RIGHTS RESERVED.
+Nao foram copiados/adquiridos novos dados brutos; sem promessa de
+licenca comercial ou auditoria independente de qualidade/completude.
+Nao sao dados B3 nem cotacoes atuais.
+Motor/algoritmo da base master; scripts ainda nao commitados no instante
+da execucao, identificados pelos proprios hashes no manifesto.
+
+SHA-256 resultado nativo preservado:
+4c7aff77150ed3c5b9b235bc3b89e865f1e9395f12d2832ef78f5200c22e8a3b
+SHA-256 dashboard preservado:
+771b141bdf9cdc038c814b5688bbdcb54e6a17b3cf6f7ddf90afca0dca29a073
+Hashes das demais evidencias no dashboard; integridade verificada por teste.
+Hashes de runner/exporter conferidos com os scripts efetivamente executados.
+
+6. REPETICAO E ESTABILIDADE
+Run-3: 2026-10-29T21:34:16.029050+00:00 ate
+2026-10-29T21:34:21.028636+00:00, Completed, exit 0.
+Comparacao JSON por igualdade exata dos campos:
+statistics, equity (396 pontos), fills, dataset (inclui hashes), engine.
+Resultado: todos identicos. Horarios/CPU/duracao nao comparados.
+Recibo persistido: p03/artifacts/repeat-check.json.
+SHA-256 do conteudo comum canonico:
+e20c41b8c3e3a2434d80a10a77ed31efe01d82206143368f257c56269c06bd38
+Conteudo canonico = json.dumps(campos, sort_keys=True,
+separators=(',', ':'), allow_nan=False).encode().
+Recibo e seu vinculo com a amostra preservada conferidos por teste.
+
+7. TESTES E REGRESSAO
+python3 -m unittest discover -s p03 -p 'test_*.py' -v
+PASS: 12 testes. Saida nativa versus resumo, hashes de arquivos/inputs,
+rejeicao de status incompleto, erro runtime/processo/log, dados faltantes,
+curva vazia/inconsistente/NaN, fill ausente/divergente, moeda/proveniencia,
+sobrescrita e ausencia de artefatos; objetos nativos nao modificados.
+
+cd frontend && npm test
+PASS: 42 testes (39 P02 preservados, 3 P03).
+cd frontend && npm run build
+PASS: typecheck e build Vite. Build final com 2041 modulos.
+cd frontend && npm run test:e2e
+PASS final: 14 testes Chromium desktop/mobile, sem retries.
+Doze testes P02 originais passaram sem alteracao do arquivo de testes.
+Dois P03: resultado nativo/proveniencia, valores reais, preenchimento,
+curva, isolamento da carteira/boleta, retorno ao terminal sem perda,
+tema, layout 360/768/1440 e nenhuma chamada externa/mutacao de rede.
+P02 original inclui graficos, indicadores, compra, reducao, inversao,
+zeragem, dashboard, validacoes, playback, reset, reload e layouts ate 1920.
+Suíte upstream completa NAO executada; upstream nao modificado.
+Nao houve teste/deploy remoto P03 ou alegacao de validacao em producao.
+
+Falhas intermediarias resolvidas, nao tratadas como PASS:
+- E2E sem Chromium: instalado navegador apos diagnostico.
+- Import JSON no runner ESM Playwright: adicionado atributo type: json.
+- Overflow P03 a 360px: grid implicito com tamanho intrinseco; coluna
+  minmax(0,1fr) e quebra de valores longos, CSS restrito a .backtest.
+- Uma chamada Playwright com ordem de argumentos inadequada nao rodou;
+  seletor corrigido, testes posteriormente executados.
+- Copia inicial de artefatos com nome de timestamp incorreto falhou;
+  relatorio correto copiado, integridade completa conferida pelos hashes.
+
+8. UX E CONTRATO DE RESULTADOS
+Nova navegacao Backtest LEAN; apenas resumo JSON real pre-executado.
+Nao inicia processo, importa upload, chama API ou executa no browser.
+Moeda USD, datas, fonte, versao, status, curva, fills, estatisticas
+nativas e hashes visiveis; erros sem fallback sintetico.
+Terminal/Dashboard P02 e seus avisos/contabilidade permanecem sinteticos;
+nenhuma mistura com os resultados LEAN.
+Contrato JSON v1 e comandos reproduziveis em p03/README.md.
+
+9. PREFLIGHT, LIMITES E PROMOCAO
+git diff --check antes do staging (arquivos ja rastreados): PASS.
+git diff --cached --check: detectou um espaco final na linha 69 do log
+nativo p03/artifacts/first-run/console.txt. Artefato preservado byte a byte
+para manter SHA-256 e evidencias; nao se trata de codigo executavel.
+git diff --cached --check -- . ':!p03/artifacts/first-run/console.txt':
+PASS para todo o restante do pacote. Excecao de whitespace do log exposta,
+sem normalizar/adulterar a saida original nem desabilitar verificacoes.
+Escopo permitido: p03/**, visualizador/testes/frontend relacionados,
+contrato/mapa/evidencias/Nota de versao.
+Sem alteracao de arquivos upstream LEAN, Data, LICENSE/atribuicoes,
+manifestos/lockfiles de dependencias ou workflows.
+Sem SQL, migrations, secrets, Supabase, feed, conta ou ordens reais.
+Nenhum merge, deploy, force push, reset destrutivo ou servico permanente.
+Template PR inspecionado em .github/pull_request_template.md.
+Nao havia issue aberta; criacao de issue inicialmente autorizada mas
+negada na ferramenta. Proprietario em seguida DISPENSOU explicitamente
+a issue e autorizou somente PR com a excecao registrada.
+Branch usa feature/p03-lean-backtest, sem numero de issue (excecao).
+Commit/push/PR da branch autorizados na solicitacao; nao autorizam merge.
+Identidade final do pacote verificavel no commit head do PR, sem ciclo
+de reescrever este TXT para incluir seu proprio hash.
+
+Aceite funcional local: comprovado pelos arquivos nativos e testes.
+Promocao/selagem: PENDENTES de revisao e eventual autorizacao separada.
+Risco numerico e avisos upstream expostos, nao homologados por este pacote.
+Rollback: rejeitar PR antes do merge; apos eventual aprovacao, revert
+somente do P03 via PR, preservando P02, LEAN e dados existentes.

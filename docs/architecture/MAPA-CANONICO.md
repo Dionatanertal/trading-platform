@@ -1,7 +1,14 @@
 # Mapa canônico da arquitetura
 
-**Pacote atual:** P02 — Primeiro terminal visual (2026-10-29).
-**Estado:** proprietário informou aprovação do P01 e autorizou explicitamente o frontend demonstrativo P02; implementação para revisão, sem merge ou deploy. Demais serviços e operação continuam propostos/bloqueados.
+**Pacote atual:** P03 — Primeiro backtest LEAN nativo (2026-10-29).
+**Estado:** execução local comprovada e visualização offline para revisão.
+P02 está mesclado na base; publicação existente informada pelo proprietário,
+sem alteração/deploy remoto nesta entrega. Demais serviços e operação
+continuam propostos/bloqueados.
+**Baseline P03:** `master` em `6f9f26dded73e6ff0c1a0879b0125331c85bc4aa`.
+**Branch P03:** `feature/p03-lean-backtest`.
+**Contrato e evidências:** [P03](CONTRATO-P03.md), `p03/README.md`,
+`docs/evidence/P03-evidencias.txt`. Os registros P02 abaixo são históricos.
 **Baseline P02:** `master` em `d940ba291dfee1b6129b13ff086e2e2a265e0fcc`.
 **Branch de trabalho:** `feature/p02-trading-terminal`.
 **Registro histórico P01:** desenho elaborado sobre `6bdc2932fa0adda8255b4e4ed35184bae678dee3`; contratos/ADR originais preservados. [Contrato específico P02](CONTRATO-P02.md) delimita a demonstração sem substituir os contratos futuros de serviços.
@@ -25,7 +32,8 @@ Esta proposta não afirma que os documentos privados integrais PES 1.0 ou SAMACO
 | `Api` | **Existente, não é a API do produto** | O projeto declara ser um SDK C# para interação com QuantConnect.com. Não é backend HTTP próprio nem contrato para o frontend desta plataforma. |
 | `Queues`, `Messaging`, `Report`, `Optimizer`, `Optimizer.Launcher`, `Research`, `ToolBox`, `DownloaderDataProvider` | **Existentes** | Projetos de suporte do LEAN. A presença de um projeto não implica que a plataforma própria já os integre ou ofereça suas funções a usuários. |
 | `Tests` | **Existente** | Suíte de testes do código LEAN; não comprova integração da futura plataforma. |
-| Frontend próprio | **Implementado no P02; publicação pendente** | `frontend/`: React/TypeScript/Vite, Lightweight Charts, domínio puro de simulação sintética, carteira em memória, terminal/dashboard. Não integra API, runner, LEAN ou dados externos; não é PAPER operacional. Não existia no baseline P01/P02. |
+| Frontend próprio | **P02 preservado; visualizador P03 adicionado para revisão** | `frontend/`: React/TypeScript/Vite, Lightweight Charts, simulação sintética e carteira em memória. Área Backtest LEAN separada, somente leitura de resumo nativo validado. Sem API, despacho web ou PAPER operacional. |
+| Runner local P03 | **Executado e comprovado via .NET** | `p03/run.py` orquestra build/launcher nativo com configuração fixa de backtest e samples SPY locais. `export.py` valida status, dados, ordem e curva antes de exportar JSON v1. Sem serviço permanente ou ligação operacional com a UI. |
 | API/backend e coordenador de execução próprios | **Propostos** | Autenticação, autorização, validação, idempotência, controle de concorrência, despacho e reconciliação entre produto e runner LEAN; não encontrados no baseline. |
 | Adaptador/runner de plataforma | **Proposto; transporte pendente** | Isola o contrato do produto das interfaces de inicialização do LEAN. Processo, protocolo, hospedagem e isolamento precisam de decisão e validação antes de implementar. |
 | Supabase independente | **Planejado, não integrado** | Projeto novo de persistência e controle, apenas por contrato futuro. Nenhuma referência ou integração Supabase foi encontrada. Projeto, esquema, políticas, RLS e credenciais não são definidos nem alterados pelo P01. |
@@ -60,6 +68,19 @@ LEAN Launcher -> LEAN Engine -> handlers de dados, algoritmo,
 O diagrama representa uma fronteira proposta, não uma topologia instalada. O frontend não deve acessar o runner nem credenciais privilegiadas do Supabase diretamente. O backend é o único componente proposto para autorizar comandos e coordenar estado persistido com estado observado do engine. O transporte até o LEAN e o mecanismo de fila permanecem decisões em aberto.
 
 No P02 somente o frontend acima existe: `UI → domínio local de simulação → estado em memória por aba`, com candles/indicadores determinísticos locais. Nenhuma seta HTTPS/runner/persistência do diagrama está conectada. Operações e resultados da demo não são eventos LEAN. O novo workflow Pages tem disparo exclusivamente manual, confirmação explícita e restrição a `master`; nenhum deploy foi realizado.
+
+No P03 acrescenta-se um fluxo **local e offline**, não as setas de serviços
+propostos: comando explícito → .NET Launcher → LEAN Engine →
+BasicTemplateAlgorithm/SPY → arquivos nativos → validador → resumo JSON v1 →
+visualizador somente leitura. Execução Completed, 3.943 pontos, 11 solicitações
+de dados atendidas sem falhas, uma compra preenchida e 396 amostras de patrimônio;
+repetição com resultados financeiros idênticos. P02 não consome esses valores
+em sua carteira ou boleta. Dados locais identificados como amostras históricas
+LEAN/Algoseek, sem auditoria independente ou alegação de tempo real.
+Não houve alteração upstream, Supabase, workflow, merge ou deploy P03.
+O build expôs avisos upstream NU1903/NU1904; não equivale a homologação de segurança.
+Classificação numérica de risco P03 permanece pendente de confirmação do
+proprietário; não inferida dos protocolos privados.
 
 ## 4. Domínio, fontes de verdade e fluxos
 

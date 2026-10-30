@@ -6,6 +6,7 @@ import {
     SkipForward, Sun, TrendingUp, Wallet, X,
 } from 'lucide-react';
 import PriceChart, { type Indicators } from './PriceChart';
+import BacktestResults from './BacktestResults';
 import { assets, candlesFor, dateTime, instrument, money, number, periods, priceAt, scenarioTime, type Period, type Symbol } from './market';
 import { INITIAL_CAPITAL, initialSimulation, metrics, openResult, simulationReducer, type Simulation, type Action } from './simulation';
 
@@ -163,7 +164,7 @@ function Dashboard({ state }: { state: Simulation }) {
 
 export default function App() {
     const [state, dispatch] = useReducer(simulationReducer, undefined, initialSimulation);
-    const [page, setPage] = useState<'terminal' | 'dashboard'>('terminal');
+    const [page, setPage] = useState<'terminal' | 'dashboard' | 'backtest'>('terminal');
     const [theme, setTheme] = useState<'dark' | 'light'>('dark');
     const [symbol, setSymbol] = useState<Symbol>('WIN');
     const [period, setPeriod] = useState<Period>('5m');
@@ -191,15 +192,18 @@ export default function App() {
         <a className="skip-link" href="#main">Pular para o conteúdo</a>
         <aside className="rail" aria-label="Navegação principal"><Logo small />
             <nav><button title="Terminal" aria-label="Terminal" aria-current={page === 'terminal' ? 'page' : undefined} onClick={() => setPage('terminal')}><ChartCandlestick size={22} /><span>Terminal</span></button>
-                <button title="Dashboard" aria-label="Dashboard" aria-current={page === 'dashboard' ? 'page' : undefined} onClick={() => setPage('dashboard')}><LayoutDashboard size={21} /><span>Dashboard</span></button></nav>
+                <button title="Dashboard" aria-label="Dashboard" aria-current={page === 'dashboard' ? 'page' : undefined} onClick={() => setPage('dashboard')}><LayoutDashboard size={21} /><span>Dashboard</span></button>
+                <button title="Backtest LEAN" aria-label="Backtest LEAN" aria-current={page === 'backtest' ? 'page' : undefined} onClick={() => setPage('backtest')}><FlaskConical size={21} /><span>Backtest</span></button></nav>
             <div className="rail-bottom"><span className="rail-version">P02</span><span className="avatar">VX</span></div>
         </aside>
         <div className="workspace">
-            <header className="topbar"><Logo /><div className="breadcrumb">Workspace <ChevronRight size={13} /><b>{page === 'terminal' ? 'Terminal de trading' : 'Dashboard'}</b></div>
-                <div className="topbar-actions"><span className="simulation-pill"><span className="status-dot" /> SIMULAÇÃO</span>
+            <header className="topbar"><Logo /><div className="breadcrumb">Workspace <ChevronRight size={13} /><b>{page === 'terminal' ? 'Terminal de trading' : page === 'dashboard' ? 'Dashboard' : 'Backtest LEAN'}</b></div>
+                <div className="topbar-actions"><span className="simulation-pill"><span className="status-dot" /> {page === 'backtest' ? 'BACKTEST HISTÓRICO' : 'SIMULAÇÃO'}</span>
                     <button className="icon-button" aria-label={theme === 'dark' ? 'Ativar tema claro' : 'Ativar tema escuro'} title="Alternar tema" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>{theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}</button>
                     <button className="reset-button" aria-label="Reiniciar simulação" onClick={reset}><RotateCcw size={14} /><span>Reiniciar</span></button></div></header>
-            <div className="safety-banner"><ShieldCheck size={14} /><span><b>Ambiente de simulação.</b> Dados sintéticos, capital fictício e ordens exclusivamente simuladas. Sem conexão com B3, corretora ou LEAN.</span><span className="banner-tag">ZERO ORDENS REAIS</span></div>
+            <div className="safety-banner"><ShieldCheck size={14} /><span>{page === 'backtest'
+                ? <><b>Backtest histórico LEAN.</b> Resultado de execução local comprovada. Somente leitura; sem motor online, B3 ou corretora.</>
+                : <><b>Ambiente de simulação.</b> Dados sintéticos, capital fictício e ordens exclusivamente simuladas. Sem conexão com B3, corretora ou LEAN.</>}</span><span className="banner-tag">ZERO ORDENS REAIS</span></div>
             <main id="main">
                 {page === 'terminal' ? <>
                     <div className="terminal-heading"><div><span className="eyebrow">SEU MERCADO. SEU RITMO.</span><h1>Terminal de trading<span className="heading-dot" /></h1></div>
@@ -237,10 +241,10 @@ export default function App() {
                         <Ticket state={state} symbol={symbol} dispatch={dispatch} />
                         <Portfolio state={state} dispatch={dispatch} tab={tab} setTab={setTab} />
                     </div>
-                </> : <Dashboard state={state} />}
-                <details className="methodology"><summary><CircleHelp size={14} /> Como funciona esta simulação?</summary><p>Candles gerados por funções determinísticas, sem feed externo. O relógio começa em 16/01/2026 às 17:00 UTC e só avança com seus controles. Cada passo representa um minuto sintético; o último candle de cada período pode estar em formação. Indicadores: EMA 9 e 21 com semente SMA, SMA 20 e volume fictício.</p><p>Ordens a mercado são preenchidas integralmente ao preço sintético visível, sem latência, taxas, margem ou slippage. Multiplicadores são convenções didáticas, não regras B3. Máximo de 100 unidades por ativo e 1.000 ordens por sessão. Posições, métricas e histórico existem apenas nesta aba e são apagados ao recarregar. Não é backtest, recomendação ou paper trading integrado ao LEAN.</p><p>TradingView Lightweight Charts™<br />Copyright (с) 2025 TradingView, Inc. <a href="https://www.tradingview.com/" target="_blank" rel="noreferrer">https://www.tradingview.com/</a></p></details>
+                </> : page === 'dashboard' ? <Dashboard state={state} /> : <BacktestResults />}
+                {page !== 'backtest' && <details className="methodology"><summary><CircleHelp size={14} /> Como funciona esta simulação?</summary><p>Candles gerados por funções determinísticas, sem feed externo. O relógio começa em 16/01/2026 às 17:00 UTC e só avança com seus controles. Cada passo representa um minuto sintético; o último candle de cada período pode estar em formação. Indicadores: EMA 9 e 21 com semente SMA, SMA 20 e volume fictício.</p><p>Ordens a mercado são preenchidas integralmente ao preço sintético visível, sem latência, taxas, margem ou slippage. Multiplicadores são convenções didáticas, não regras B3. Máximo de 100 unidades por ativo e 1.000 ordens por sessão. Posições, métricas e histórico existem apenas nesta aba e são apagados ao recarregar. Não é backtest, recomendação ou paper trading integrado ao LEAN.</p><p>TradingView Lightweight Charts™<br />Copyright (с) 2025 TradingView, Inc. <a href="https://www.tradingview.com/" target="_blank" rel="noreferrer">https://www.tradingview.com/</a></p></details>}
             </main>
-            <footer className="app-footer"><span><span className="status-dot" /> Ambiente isolado <i /> P02 · v0.2.0</span><span>Gráficos: <a href="https://www.tradingview.com/" target="_blank" rel="noreferrer">TradingView Lightweight Charts™</a><i /> Motor futuro: QuantConnect LEAN · Apache-2.0 <ArrowRight size={11} /></span></footer>
+            <footer className="app-footer"><span><span className="status-dot" /> Ambiente isolado <i /> {page === 'backtest' ? 'P03 · backtest offline' : 'P02 · v0.2.0'}</span><span>Gráficos: <a href="https://www.tradingview.com/" target="_blank" rel="noreferrer">TradingView Lightweight Charts™</a><i /> {page === 'backtest' ? 'Motor do backtest:' : 'Motor futuro:'} QuantConnect LEAN · Apache-2.0 <ArrowRight size={11} /></span></footer>
         </div>
     </div>;
 }

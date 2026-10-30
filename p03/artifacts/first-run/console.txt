@@ -1,0 +1,111 @@
+20261029 21:33:43.472 TRACE:: Using /root/.copilot/session-state/ebeb9a96b1b149499bbc6f0993c2c936/files/p03-run-2/effective-config.json as configuration file
+20261029 21:33:43.628 TRACE:: Composer(): Loading Assemblies from /workspaces/trading-platform/Dionatanertal/trading-platform/Launcher/bin/Release/
+20261029 21:33:44.289 TRACE:: Python for .NET Assembly: Python.Runtime, Version=2.0.66.0, Culture=neutral, PublicKeyToken=5000fea6cba702dd
+20261029 21:33:46.465 TRACE:: Engine.Main(): LEAN ALGORITHMIC TRADING ENGINE v2.5.0.0 Mode: RELEASE (64bit) Host: adc-sandbox
+20261029 21:33:46.466 TRACE:: Engine.Main(): Started 21:33
+20261029 21:33:46.481 TRACE:: JobQueue.NextJob(): Selected /workspaces/trading-platform/Dionatanertal/trading-platform/Launcher/bin/Release/QuantConnect.Algorithm.CSharp.dll
+20261029 21:33:46.497 TRACE:: AlgorithmManager.CreateTokenBucket(): Initializing LeakyBucket: Capacity: 120 RefillAmount: 18 TimeInterval: 1440
+20261029 21:33:46.504 TRACE:: Engine.Run(): Resource limits '0' CPUs. 2147483647 MB RAM.
+20261029 21:33:46.504 TRACE:: TextSubscriptionDataSourceReader.SetCacheSize(): Setting cache size to 71582788 items
+20261029 21:33:47.050 TRACE:: Loader.TryCreateILAlgorithm(): Loading only the algorithm assembly
+20261029 21:33:47.237 TRACE:: Loader.TryCreateILAlgorithm(): Loaded BasicTemplateAlgorithm
+20261029 21:33:47.238 TRACE:: LocalObjectStore.Initialize(): Storage Root: /root/.copilot/session-state/ebeb9a96b1b149499bbc6f0993c2c936/files/p03-run-2/storage. StorageFileCount 10000. StorageLimit 10240MB. StoragePermissions Read=True Write=True Delete=True
+20261029 21:33:47.248 TRACE:: HistoryProviderManager.Initialize(): history providers [SubscriptionDataReaderHistoryProvider]
+20261029 21:33:47.251 TRACE:: BaseSetupHandler.Setup(LocalPlatform): UID: 0, PID: 0, Version: 2.5.0.0, Source: WebIDE
+20261029 21:33:47.303 TRACE:: WeightedWorkScheduler(): will use 2 workers and MaxWorkWeight is 400
+20261029 21:33:47.309 TRACE:: BaseSetupHandler.SetupCurrencyConversions():
+Account Type: Margin
+
+Symbol      Quantity    Conversion = Value in USD
+USD: $      100000.00 @       1.00 = $100000
+-------------------------------------------------
+CashBook Total Value:                $100000
+
+20261029 21:33:47.311 TRACE:: Total margin information: TotalMarginUsed: 0.00, MarginRemaining: 100000.00
+20261029 21:33:47.311 TRACE:: SetUp Backtesting: User: 0 ProjectId: 0 AlgoId: p03-spy
+20261029 21:33:47.311 TRACE:: Dates: Start: 10/07/2013 End: 10/11/2013 Cash: ¤100,000.00 MaximumRuntime: 100.00:00:00 MaxOrders: 2147483647
+20261029 21:33:47.314 TRACE:: BacktestingResultHandler(): Sample Period Set: 04.00
+20261029 21:33:47.315 TRACE:: JOB HANDLERS:
+         DataFeed:             QuantConnect.Lean.Engine.DataFeeds.FileSystemDataFeed
+         Setup:                QuantConnect.Lean.Engine.Setup.BacktestingSetupHandler
+         RealTime:             QuantConnect.Lean.Engine.RealTime.BacktestingRealTimeHandler
+         Results:              QuantConnect.Lean.Engine.Results.BacktestingResultHandler
+         Transactions:         QuantConnect.Lean.Engine.TransactionHandlers.BacktestingTransactionHandler
+         Object Store:         QuantConnect.Lean.Engine.Storage.LocalObjectStore
+         History Provider:     QuantConnect.Lean.Engine.HistoricalData.HistoryProviderManager
+         Brokerage:            QuantConnect.Brokerages.Backtesting.BacktestingBrokerage
+         Data Provider:        QuantConnect.Lean.Engine.DataFeeds.DefaultDataProvider
+
+20261029 21:33:47.326 TRACE:: Event Name "Daily Sampling", scheduled to run.
+20261029 21:33:47.326 TRACE:: AlgorithmManager.Run(): Begin DataStream - Start: 10/07/2013 00:00:00 Stop: 10/11/2013 23:59:59 Time: 10/07/2013 00:00:00 Warmup: False
+20261029 21:33:47.391 TRACE:: Debug: 2013-10-07 00:00:00 Launching analysis for p03-spy with LEAN Engine v2.5.0.0
+20261029 21:33:47.426 TRACE:: UniverseSelection.AddPendingInternalDataFeeds(): Adding internal benchmark data feed SPY,#0,SPY,Hour,TradeBar,Trade,Adjusted,OpenInterest,Internal
+20261029 21:33:47.746 TRACE:: Debug: 2013-10-07 09:31:00 Purchased Stock
+20261029 21:33:47.789 TRACE:: Synchronizer.GetEnumerator(): Exited thread.
+20261029 21:33:47.789 TRACE:: AlgorithmManager.Run(): Firing On End Of Algorithm...
+20261029 21:33:47.790 TRACE:: Engine.Run(): Exiting Algorithm Manager
+20261029 21:33:47.791 TRACE:: OrderRequestProcessingPool.Dispose(): completed
+20261029 21:33:47.792 TRACE:: StopSafely(): Waiting for 'Isolator Thread' thread to stop...
+20261029 21:33:47.793 TRACE:: FileSystemDataFeed.Exit(): Start. Setting cancellation token...
+20261029 21:33:47.794 TRACE:: FileSystemDataFeed.Exit(): Exit Finished.
+20261029 21:33:47.794 TRACE:: DataMonitor.Exit(): start...
+20261029 21:33:47.794 TRACE:: StopSafely(): Waiting for '' thread to stop...
+20261029 21:33:47.795 TRACE:: DataMonitor.GenerateReport():
+DATA USAGE:: Total data requests 11
+DATA USAGE:: Succeeded data requests 11
+DATA USAGE:: Failed data requests 0
+DATA USAGE:: Failed data requests percentage 0%
+DATA USAGE:: Total universe data requests 0
+DATA USAGE:: Succeeded universe data requests 0
+DATA USAGE:: Failed universe data requests 0
+DATA USAGE:: Failed universe data requests percentage 0%
+20261029 21:33:47.795 TRACE:: DataMonitor.Exit(): end
+20261029 21:33:47.795 TRACE:: BacktestingResultHandler.Exit(): starting...
+20261029 21:33:47.796 TRACE:: BacktestingResultHandler.Exit(): Saving logs...
+20261029 21:33:47.797 TRACE:: Debug: 2013-10-11 16:00:00 Algorithm Id:(p03-spy) completed in 0.48 seconds at 8k data points per second. Processing total of 3,943 data points.
+20261029 21:33:47.797 TRACE:: Debug: 2013-10-11 16:00:00 Your log was successfully created and can be retrieved from: /root/.copilot/session-state/ebeb9a96b1b149499bbc6f0993c2c936/files/p03-run-2/p03-spy-log.txt
+20261029 21:33:47.797 TRACE:: BacktestingResultHandler.Run(): Ending Thread...
+20261029 21:33:47.797 TRACE:: StopSafely(): Waiting for 'Result Thread' thread to stop...
+20261029 21:33:48.051 TRACE:: 
+STATISTICS:: Total Orders 1
+STATISTICS:: Average Win 0%
+STATISTICS:: Average Loss 0%
+STATISTICS:: Compounding Annual Return 271.453%
+STATISTICS:: Drawdown 2.200%
+STATISTICS:: Expectancy 0
+STATISTICS:: Start Equity 100000
+STATISTICS:: End Equity 101691.92
+STATISTICS:: Net Profit 1.692%
+STATISTICS:: Sharpe Ratio 8.854
+STATISTICS:: Sortino Ratio 0
+STATISTICS:: Probabilistic Sharpe Ratio 67.459%
+STATISTICS:: Loss Rate 0%
+STATISTICS:: Win Rate 0%
+STATISTICS:: Profit-Loss Ratio 0
+STATISTICS:: Alpha -0.005
+STATISTICS:: Beta 0.996
+STATISTICS:: Annual Standard Deviation 0.222
+STATISTICS:: Annual Variance 0.049
+STATISTICS:: Information Ratio -14.565
+STATISTICS:: Tracking Error 0.001
+STATISTICS:: Treynor Ratio 1.97
+STATISTICS:: Total Fees $3.44
+STATISTICS:: Estimated Strategy Capacity $56000000.00
+STATISTICS:: Lowest Capacity Asset SPY R735QTJ8XC9X
+STATISTICS:: Portfolio Turnover 19.93%
+STATISTICS:: Drawdown Recovery 3
+STATISTICS:: OrderListHash 3da9fa60bf95b9ed148b95e02e0cfc9e
+20261029 21:33:48.051 TRACE:: BacktestingResultHandler.SendAnalysisResult(): Processed final packet
+20261029 21:33:48.052 TRACE:: Engine.Run(): Disconnecting from brokerage...
+20261029 21:33:48.052 TRACE:: Engine.Run(): Disposing of setup handler...
+20261029 21:33:48.052 TRACE:: Engine.Main(): Analysis Completed and Results Posted.
+Engine.Main(): Analysis Complete.
+20261029 21:33:48.052 TRACE:: Engine.Main(): Packet removed from queue: p03-spy
+20261029 21:33:48.052 TRACE:: LeanEngineSystemHandlers.Dispose(): start...
+20261029 21:33:48.053 TRACE:: LeanEngineSystemHandlers.Dispose(): Disposed of system handlers.
+20261029 21:33:48.053 TRACE:: LeanEngineAlgorithmHandlers.Dispose(): start...
+20261029 21:33:48.053 TRACE:: LocalObjectStore.Dispose(): start...
+20261029 21:33:48.053 TRACE:: LocalObjectStore.Dispose(): end
+20261029 21:33:48.053 TRACE:: LeanEngineAlgorithmHandlers.Dispose(): Disposed of algorithm handlers.
+20261029 21:33:48.053 TRACE:: StopSafely(): Waiting for 'CpuPerformance' thread to stop...
+20261029 21:33:48.054 TRACE:: Program.Main(): Exiting Lean...

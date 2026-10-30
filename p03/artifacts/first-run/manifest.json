@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "sourceCommit": "6f9f26dded73e6ff0c1a0879b0125331c85bc4aa",
+  "startedAtUtc": "2026-10-29T21:33:43.294828+00:00",
+  "dotnetSdk": "10.0.403",
+  "runnerSha256": "5e521259ee292baae4b5f06325745746456a10a50368ac629d75520d2e3bc011",
+  "exporterSha256": "e1bb33419630887671ff6af4d5eedc33bf996fed6201313b6ed8b4a68738b972",
+  "effectiveConfigSha256": "8856f0f20dee71aa754d231a156190cb75842855a0b909b2df17f72d97cee2ad",
+  "inputs": {
+    "Algorithm.CSharp/BasicTemplateAlgorithm.cs": "3b230919f77f1dc10397b8aa7cf8f546d421f79cc8c72cf7d461a8950b928f42",
+    "p03/config.json": "12078af00579847345a9e9b0746b80b2d3dfea2d45b2728b7114379d586d4abd",
+    "Data/equity/usa/map_files/spy.csv": "4765f330a156d4b0c521c094abf9747c4c7ccaf8e10c15ca50db16887d36d3cf",
+    "Data/equity/usa/factor_files/spy.csv": "ad53e292de2e7076ff36721e1dcffd1db0d04fe6813b59aeece8620fb0d4cec1",
+    "Data/equity/usa/hour/spy.zip": "27af83adec03a3dff2bfda0d4edc077a5085f83a8b71f4ac156af3480e2e99d4",
+    "Data/market-hours/market-hours-database.json": "f44effe21e7937a76a426bdb6a0de427b6440160b811b33bb6ed28c0f04ea1f0",
+    "Data/symbol-properties/symbol-properties-database.csv": "53072f5a5ac4ff1b0d6f14a28fb93c43b633c0713635539fda0c2695089e236a",
+    "Data/alternative/interest-rate/usa/interest-rate.csv": "1d0e6f2ab20e61a4330e8a38735bc73cde4034e7293a45d23b5ebdc6467f7899",
+    "Data/equity/usa/minute/spy/20131007_trade.zip": "42a51db3d3b07cb5421189b92bf831d996b9369e2211b5bea54e6af2dcfcd173",
+    "Data/equity/usa/minute/spy/20131007_quote.zip": "79bedca5cdc5fd6f48b66f8f8cfb1832dfb9ac98f69a246824b3c64a311eb3b3",
+    "Data/equity/usa/minute/spy/20131008_trade.zip": "3632ac059d585b702a6c01851dbcb8c21c7d599d84ab1b8bcae8e3e3578c8bd0",
+    "Data/equity/usa/minute/spy/20131008_quote.zip": "8c9b18c67a3cb3109186898603f52781b4c3c2bacdaa6a439d27765fb1233c89",
+    "Data/equity/usa/minute/spy/20131009_trade.zip": "72d7d50c7eb24084a205c0c25a3f56b372675527addfe8d05f90c64aeb7943e8",
+    "Data/equity/usa/minute/spy/20131009_quote.zip": "74c5f5aa899c1ff2b37e736585595bc30244d7a8262c3fbdcb989ec054d61494",
+    "Data/equity/usa/minute/spy/20131010_trade.zip": "deb8c6873ebfe5071e13c255c47bde76b7b086a70ce29a8832a8fc0cd089b1de",
+    "Data/equity/usa/minute/spy/20131010_quote.zip": "7a07dbd4f6372a66dfe27b5ab1f270594e464ca7a8ceef1d0a53c45813f6289a",
+    "Data/equity/usa/minute/spy/20131011_trade.zip": "28dbc224a97d8273f9aac4316a8cae2e8dda01ec7fcd3c3a38f9ed746d315e83",
+    "Data/equity/usa/minute/spy/20131011_quote.zip": "d9c42e80df2ab1acd503bf20e950b6f2f8a67461619ab78d0bdee74be97c6445"
+  },
+  "assemblies": {
+    "QuantConnect.Lean.Launcher.dll": "d5ebdae1f54f82c5ae6897e2d5c70f3aadf2208ec5ee64b5d65b8a7be64a5dea",
+    "QuantConnect.Lean.Engine.dll": "977e6615e4c28c86b96d25cc8c360234a7a1ff99e7ccaa9c2a75784a6d343ed1",
+    "QuantConnect.Algorithm.CSharp.dll": "651233e3a90cdf1ff1e9051fe1595d427e28ec37dac98b70d3dcde7bc2efb8e6"
+  },
+  "exitCode": 0,
+  "finishedAtUtc": "2026-10-29T21:33:48.121706+00:00"
+}

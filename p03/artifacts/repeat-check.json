@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "comparedFields": [
+    "statistics",
+    "equity",
+    "fills",
+    "dataset",
+    "engine"
+  ],
+  "equal": true,
+  "financialContentSha256": "e20c41b8c3e3a2434d80a10a77ed31efe01d82206143368f257c56269c06bd38",
+  "runs": [
+    {
+      "startedAtUtc": "2026-10-29T21:33:43.294828+00:00",
+      "finishedAtUtc": "2026-10-29T21:33:48.121706+00:00",
+      "status": "Completed",
+      "exitCode": 0,
+      "nativeResultSha256": "4c7aff77150ed3c5b9b235bc3b89e865f1e9395f12d2832ef78f5200c22e8a3b",
+      "dashboardSha256": "771b141bdf9cdc038c814b5688bbdcb54e6a17b3cf6f7ddf90afca0dca29a073"
+    },
+    {
+      "startedAtUtc": "2026-10-29T21:34:16.029050+00:00",
+      "finishedAtUtc": "2026-10-29T21:34:21.028636+00:00",
+      "status": "Completed",
+      "exitCode": 0,
+      "nativeResultSha256": "63a0c13b40c683f1256b19d2e322e6a08bc38942956cfc8323aff36562673ad6",
+      "dashboardSha256": "f7f5b9c3afe789bcede239a62f6e34820866700334a26782531410ac8bf2f14a"
+    }
+  ]
+}
